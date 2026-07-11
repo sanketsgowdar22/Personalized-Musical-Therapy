@@ -1,0 +1,41 @@
+# CODEOWNERS — AI Musical Therapy Platform
+# Each line is a file pattern followed by one or more owners.
+# These owners will be requested for review when someone opens a pull request.
+# Order matters — later matches override earlier ones.
+
+# Default owner for everything
+*                       @ai-musical-therapy/core-team
+
+# Documentation
+/docs/                  @ai-musical-therapy/docs-team
+*.md                    @ai-musical-therapy/docs-team
+
+# Frontend
+/frontend/              @ai-musical-therapy/frontend-team
+
+# Backend
+/backend/               @ai-musical-therapy/backend-team
+
+# ML/AI
+/ml/                    @ai-musical-therapy/ml-team
+/datasets/              @ai-musical-therapy/ml-team
+/research/              @ai-musical-therapy/ml-team
+
+# Infrastructure & DevOps
+/deployment/            @ai-musical-therapy/devops-team
+/docker/                @ai-musical-therapy/devops-team
+docker-compose.yml      @ai-musical-therapy/devops-team
+/scripts/               @ai-musical-therapy/devops-team
+
+# Database
+/database/              @ai-musical-therapy/backend-team
+
+# CI/CD
+/.github/               @ai-musical-therapy/devops-team
+
+# Security-sensitive files
+SECURITY.md             @ai-musical-therapy/security-team
+.env.example            @ai-musical-therapy/security-team
+
+# Tests
+/tests/                 @ai-musical-therapy/qa-team

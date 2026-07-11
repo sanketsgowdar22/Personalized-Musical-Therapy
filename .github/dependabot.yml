@@ -1,0 +1,76 @@
+# ==============================================================================
+# Dependabot Configuration — AI Musical Therapy Platform
+# ==============================================================================
+
+version: 2
+updates:
+  # Frontend (npm)
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "frontend"
+    commit-message:
+      prefix: "build(deps):"
+    reviewers:
+      - "ai-musical-therapy/frontend-team"
+
+  # Backend (pip)
+  - package-ecosystem: "pip"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "backend"
+    commit-message:
+      prefix: "build(deps):"
+    reviewers:
+      - "ai-musical-therapy/backend-team"
+
+  # ML (pip)
+  - package-ecosystem: "pip"
+    directory: "/ml"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "ml"
+    commit-message:
+      prefix: "build(deps):"
+    reviewers:
+      - "ai-musical-therapy/ml-team"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "ci"
+    commit-message:
+      prefix: "ci(deps):"
+    reviewers:
+      - "ai-musical-therapy/devops-team"
+
+  # Docker
+  - package-ecosystem: "docker"
+    directory: "/docker"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "build(docker):"
+    reviewers:
+      - "ai-musical-therapy/devops-team"
