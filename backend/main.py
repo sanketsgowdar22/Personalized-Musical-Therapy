@@ -28,8 +28,6 @@ app.add_middleware(
 
 # ── Routes ───────────────────────────────────────────────────────────────────
 app.include_router(v1_router)
-
-
 @app.get("/api/v1/health")
 async def health_check():
     """Public health check endpoint."""
