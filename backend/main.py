@@ -15,6 +15,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/api/v1/health")
 async def health_check():
     return {"status": "healthy", "version": "0.1.0"}
