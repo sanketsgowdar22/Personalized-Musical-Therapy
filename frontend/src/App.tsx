@@ -4,6 +4,8 @@ import { AppLayout } from './components/layout/AppLayout';
 import { AuthPage } from './pages/AuthPage';
 import { DashboardPage } from './pages/DashboardPage';
 
+import { EmotionDetectionPage } from './pages/EmotionDetectionPage';
+
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -26,8 +28,7 @@ function App() {
             <ProtectedRoute>
               <Routes>
                 <Route path="/" element={<DashboardPage />} />
-                {/* Future routes to be implemented in Phase 09 */}
-                <Route path="/therapy" element={<div>Therapy Flow coming soon...</div>} />
+                <Route path="/therapy" element={<EmotionDetectionPage />} />
                 <Route path="/journal" element={<div>Journal Flow coming soon...</div>} />
                 <Route path="/music" element={<div>Music Recommender coming soon...</div>} />
                 <Route path="/analytics" element={<div>Analytics coming soon...</div>} />

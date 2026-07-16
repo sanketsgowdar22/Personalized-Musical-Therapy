@@ -10,8 +10,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.core.exceptions import NotFoundException
-from app.models.models import MessageRole, SessionStatus, TherapyMessage, TherapySession, User
-from app.schemas.schemas import TherapyMessageRequest, TherapyMessageResponse, TherapySessionResponse
+from app.models.models import (
+    MessageRole,
+    SessionStatus,
+    TherapyMessage,
+    TherapySession,
+    User,
+)
+from app.schemas.schemas import (
+    TherapyMessageRequest,
+    TherapyMessageResponse,
+    TherapySessionResponse,
+)
 
 router = APIRouter(prefix="/therapy", tags=["Therapy"])
 
@@ -38,14 +48,18 @@ async def send_message(
 ):
     """Send a message in a therapy session and get AI response."""
     result = await db.execute(
-        select(TherapySession).where(TherapySession.id == session_id, TherapySession.user_id == current_user.id)
+        select(TherapySession).where(
+            TherapySession.id == session_id, TherapySession.user_id == current_user.id
+        )
     )
     session = result.scalar_one_or_none()
     if not session:
         raise NotFoundException("Therapy session")
 
     # Save user message
-    user_msg = TherapyMessage(session_id=session_id, role=MessageRole.user, content=data.content)
+    user_msg = TherapyMessage(
+        session_id=session_id, role=MessageRole.user, content=data.content
+    )
     db.add(user_msg)
 
     # Generate AI response (placeholder — real LLM integration in Phase 13)
@@ -53,7 +67,9 @@ async def send_message(
         "I hear you. It sounds like you're going through something difficult. "
         "Can you tell me more about how that makes you feel?"
     )
-    ai_msg = TherapyMessage(session_id=session_id, role=MessageRole.assistant, content=ai_response)
+    ai_msg = TherapyMessage(
+        session_id=session_id, role=MessageRole.assistant, content=ai_response
+    )
     db.add(ai_msg)
 
     session.message_count = (session.message_count or 0) + 2
@@ -88,7 +104,9 @@ async def get_session(
 ):
     """Get a therapy session with its messages."""
     result = await db.execute(
-        select(TherapySession).where(TherapySession.id == session_id, TherapySession.user_id == current_user.id)
+        select(TherapySession).where(
+            TherapySession.id == session_id, TherapySession.user_id == current_user.id
+        )
     )
     session = result.scalar_one_or_none()
     if not session:
@@ -104,7 +122,9 @@ async def end_session(
 ):
     """End a therapy session."""
     result = await db.execute(
-        select(TherapySession).where(TherapySession.id == session_id, TherapySession.user_id == current_user.id)
+        select(TherapySession).where(
+            TherapySession.id == session_id, TherapySession.user_id == current_user.id
+        )
     )
     session = result.scalar_one_or_none()
     if not session:

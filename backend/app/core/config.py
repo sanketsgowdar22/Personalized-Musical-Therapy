@@ -1,6 +1,5 @@
 """Core application configuration module."""
 
-import os
 from functools import lru_cache
 
 from pydantic_settings import BaseSettings
@@ -18,7 +17,9 @@ class Settings(BaseSettings):
     API_PREFIX: str = "/api/v1"
 
     # Database
-    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/ai_musical_therapy"
+    DATABASE_URL: str = (
+        "postgresql+asyncpg://postgres:postgres@localhost:5432/ai_musical_therapy"
+    )
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"

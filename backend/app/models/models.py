@@ -2,7 +2,6 @@
 
 import enum
 import uuid
-from datetime import datetime
 
 from sqlalchemy import (
     Boolean,
@@ -79,28 +78,52 @@ class User(Base):
     full_name = Column(String(100), nullable=False)
     avatar_url = Column(Text, nullable=True)
     role = Column(Enum(UserRole), default=UserRole.user, nullable=False)
-    auth_provider = Column(Enum(AuthProvider), default=AuthProvider.local, nullable=False)
+    auth_provider = Column(
+        Enum(AuthProvider), default=AuthProvider.local, nullable=False
+    )
     is_active = Column(Boolean, default=True)
     email_verified = Column(Boolean, default=False)
     last_login_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
     deleted_at = Column(DateTime(timezone=True), nullable=True)
 
     # Relationships
-    emotion_detections = relationship("EmotionDetection", back_populates="user", cascade="all, delete-orphan")
-    journal_entries = relationship("JournalEntry", back_populates="user", cascade="all, delete-orphan")
-    therapy_sessions = relationship("TherapySession", back_populates="user", cascade="all, delete-orphan")
-    music_feedback = relationship("MusicFeedback", back_populates="user", cascade="all, delete-orphan")
-    preferences = relationship("UserPreference", back_populates="user", uselist=False, cascade="all, delete-orphan")
-    spotify_token = relationship("SpotifyToken", back_populates="user", uselist=False, cascade="all, delete-orphan")
+    emotion_detections = relationship(
+        "EmotionDetection", back_populates="user", cascade="all, delete-orphan"
+    )
+    journal_entries = relationship(
+        "JournalEntry", back_populates="user", cascade="all, delete-orphan"
+    )
+    therapy_sessions = relationship(
+        "TherapySession", back_populates="user", cascade="all, delete-orphan"
+    )
+    music_feedback = relationship(
+        "MusicFeedback", back_populates="user", cascade="all, delete-orphan"
+    )
+    preferences = relationship(
+        "UserPreference",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
+    spotify_token = relationship(
+        "SpotifyToken",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
 
 
 class EmotionDetection(Base):
     __tablename__ = "emotion_detections"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
     modality = Column(Enum(EmotionModality), nullable=False)
     primary_emotion = Column(String(20), nullable=False)
     confidence = Column(Numeric(5, 4), nullable=False)
@@ -111,22 +134,30 @@ class EmotionDetection(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User", back_populates="emotion_detections")
-    recommendations = relationship("MusicRecommendation", back_populates="emotion_detection")
+    recommendations = relationship(
+        "MusicRecommendation", back_populates="emotion_detection"
+    )
 
 
 class JournalEntry(Base):
     __tablename__ = "journal_entries"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
     title = Column(String(200), nullable=True)
     content = Column(Text, nullable=False)
     word_count = Column(Integer, nullable=False)
     emotion_detection_id = Column(
-        UUID(as_uuid=True), ForeignKey("emotion_detections.id", ondelete="SET NULL"), nullable=True
+        UUID(as_uuid=True),
+        ForeignKey("emotion_detections.id", ondelete="SET NULL"),
+        nullable=True,
     )
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
 
     user = relationship("User", back_populates="journal_entries")
 
@@ -135,7 +166,9 @@ class TherapySession(Base):
     __tablename__ = "therapy_sessions"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
     status = Column(Enum(SessionStatus), default=SessionStatus.active)
     initial_emotion = Column(String(20), nullable=True)
     final_emotion = Column(String(20), nullable=True)
@@ -144,14 +177,20 @@ class TherapySession(Base):
     ended_at = Column(DateTime(timezone=True), nullable=True)
 
     user = relationship("User", back_populates="therapy_sessions")
-    messages = relationship("TherapyMessage", back_populates="session", cascade="all, delete-orphan")
+    messages = relationship(
+        "TherapyMessage", back_populates="session", cascade="all, delete-orphan"
+    )
 
 
 class TherapyMessage(Base):
     __tablename__ = "therapy_messages"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    session_id = Column(UUID(as_uuid=True), ForeignKey("therapy_sessions.id", ondelete="CASCADE"), nullable=False)
+    session_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("therapy_sessions.id", ondelete="CASCADE"),
+        nullable=False,
+    )
     role = Column(Enum(MessageRole), nullable=False)
     content = Column(Text, nullable=False)
     is_crisis = Column(Boolean, default=False)
@@ -164,16 +203,26 @@ class MusicRecommendation(Base):
     __tablename__ = "music_recommendations"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
     emotion_detection_id = Column(
-        UUID(as_uuid=True), ForeignKey("emotion_detections.id", ondelete="SET NULL"), nullable=True
+        UUID(as_uuid=True),
+        ForeignKey("emotion_detections.id", ondelete="SET NULL"),
+        nullable=True,
     )
     target_emotion = Column(String(20), nullable=False)
     strategy = Column(String(50), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    emotion_detection = relationship("EmotionDetection", back_populates="recommendations")
-    tracks = relationship("RecommendedTrack", back_populates="recommendation", cascade="all, delete-orphan")
+    emotion_detection = relationship(
+        "EmotionDetection", back_populates="recommendations"
+    )
+    tracks = relationship(
+        "RecommendedTrack",
+        back_populates="recommendation",
+        cascade="all, delete-orphan",
+    )
 
 
 class RecommendedTrack(Base):
@@ -181,7 +230,9 @@ class RecommendedTrack(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     recommendation_id = Column(
-        UUID(as_uuid=True), ForeignKey("music_recommendations.id", ondelete="CASCADE"), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey("music_recommendations.id", ondelete="CASCADE"),
+        nullable=False,
     )
     track_name = Column(String(300), nullable=False)
     artist_name = Column(String(300), nullable=False)
@@ -197,10 +248,14 @@ class RecommendedTrack(Base):
 
 class MusicFeedback(Base):
     __tablename__ = "music_feedback"
-    __table_args__ = (UniqueConstraint("user_id", "track_id", name="uq_user_track_feedback"),)
+    __table_args__ = (
+        UniqueConstraint("user_id", "track_id", name="uq_user_track_feedback"),
+    )
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
     track_id = Column(String(50), nullable=False)
     rating = Column(SmallInteger, nullable=False)
     emotion_context = Column(String(20), nullable=True)
@@ -213,12 +268,19 @@ class UserPreference(Base):
     __tablename__ = "user_preferences"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        unique=True,
+        nullable=False,
+    )
     preferred_genres = Column(JSONB, default=list)
     preferred_bpm_range = Column(JSONB, default=dict)
     theme = Column(Enum(ThemePreference), default=ThemePreference.system)
     notifications_enabled = Column(Boolean, default=True)
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
 
     user = relationship("User", back_populates="preferences")
 
@@ -227,12 +289,19 @@ class SpotifyToken(Base):
     __tablename__ = "spotify_tokens"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        unique=True,
+        nullable=False,
+    )
     access_token = Column(Text, nullable=False)
     refresh_token = Column(Text, nullable=False)
     expires_at = Column(DateTime(timezone=True), nullable=False)
     scopes = Column(Text, nullable=False)
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
 
     user = relationship("User", back_populates="spotify_token")
 
@@ -241,7 +310,9 @@ class AuditLog(Base):
     __tablename__ = "audit_logs"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    user_id = Column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
     action = Column(String(50), nullable=False)
     resource_type = Column(String(50), nullable=False)
     resource_id = Column(UUID(as_uuid=True), nullable=True)

@@ -10,7 +10,11 @@ from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.core.exceptions import NotFoundException
 from app.models.models import JournalEntry, User
-from app.schemas.schemas import JournalCreateRequest, JournalResponse, JournalUpdateRequest
+from app.schemas.schemas import (
+    JournalCreateRequest,
+    JournalResponse,
+    JournalUpdateRequest,
+)
 
 router = APIRouter(prefix="/journals", tags=["Journals"])
 
@@ -60,7 +64,9 @@ async def get_journal(
 ):
     """Get a specific journal entry."""
     result = await db.execute(
-        select(JournalEntry).where(JournalEntry.id == journal_id, JournalEntry.user_id == current_user.id)
+        select(JournalEntry).where(
+            JournalEntry.id == journal_id, JournalEntry.user_id == current_user.id
+        )
     )
     entry = result.scalar_one_or_none()
     if not entry:
@@ -77,7 +83,9 @@ async def update_journal(
 ):
     """Update a journal entry."""
     result = await db.execute(
-        select(JournalEntry).where(JournalEntry.id == journal_id, JournalEntry.user_id == current_user.id)
+        select(JournalEntry).where(
+            JournalEntry.id == journal_id, JournalEntry.user_id == current_user.id
+        )
     )
     entry = result.scalar_one_or_none()
     if not entry:
@@ -102,7 +110,9 @@ async def delete_journal(
 ):
     """Delete a journal entry."""
     result = await db.execute(
-        select(JournalEntry).where(JournalEntry.id == journal_id, JournalEntry.user_id == current_user.id)
+        select(JournalEntry).where(
+            JournalEntry.id == journal_id, JournalEntry.user_id == current_user.id
+        )
     )
     entry = result.scalar_one_or_none()
     if not entry:
