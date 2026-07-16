@@ -264,21 +264,28 @@ SAMPLE_TRACKS = {
 
 
 @router.get("/recommendations", response_model=RecommendationResponse)
-async def get_recommendations(
-    emotion: str = Query(..., description="Target emotion"),
-    limit: int = Query(20, ge=1, le=50),
+async def get_music_recommendations(
+    emotion: str = Query(..., description="The detected emotion"),
+    limit: int = Query(5, ge=1, le=50),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Get music recommendations based on detected emotion."""
-    emotion_lower = emotion.lower()
-    mapping = EMOTION_MUSIC_MAP.get(emotion_lower, EMOTION_MUSIC_MAP["neutral"])
-    tracks_data = SAMPLE_TRACKS.get(emotion_lower, SAMPLE_TRACKS["neutral"])[:limit]
+    """Get personalized music recommendations based on emotion and therapy strategy."""
+    from app.services.recommendation_service import RecommendationService
+
+    # In Phase 08, strategy is derived internally or provided. We'll use 'iso_principle' as default
+    strategy = "iso_principle"
+
+    rec_service = RecommendationService()
+
+    tracks_data = rec_service.get_recommendations(
+        emotion=emotion.lower(), strategy=strategy, limit=limit, user_id=current_user.id
+    )
 
     rec = MusicRecommendation(
         user_id=current_user.id,
-        target_emotion=emotion_lower,
-        strategy=mapping["strategy"],
+        target_emotion=emotion.lower(),
+        strategy=strategy,
     )
     db.add(rec)
     await db.flush()
@@ -305,8 +312,8 @@ async def get_recommendations(
 
     return RecommendationResponse(
         recommendation_id=rec.id,
-        emotion=emotion_lower,
-        strategy=mapping["strategy"],
+        emotion=emotion.lower(),
+        strategy=strategy,
         tracks=track_objects,
     )
 
