@@ -2,9 +2,11 @@ import { useState, useRef, useEffect } from 'react';
 import api from '../services/api';
 import type { EmotionDetection, Recommendation } from '../types';
 import { WebcamDetector } from '../components/therapy/WebcamDetector';
+import { usePlayerStore } from '../store/playerStore';
 
 export const EmotionDetectionPage = () => {
   const [activeTab, setActiveTab] = useState<'upload' | 'live'>('upload');
+  const { setQueue, playTrack } = usePlayerStore();
   
   // Upload State
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -27,16 +29,17 @@ export const EmotionDetectionPage = () => {
     };
   }, []);
 
-  // Fetch recommendations when live emotion settles (e.g. basic debounce)
+  // Fetch recommendations when live emotion settles
   useEffect(() => {
     if (activeTab === 'live' && liveEmotion && isCameraActive) {
       const timer = setTimeout(() => {
-        // Fetch recommendations for the sustained live emotion
         api.get('/music/recommendations', {
           params: { emotion: liveEmotion.name, limit: 5 },
-        }).then(({ data }) => setRecommendation(data))
-          .catch(err => console.error("Rec error", err));
-      }, 3000); // Wait 3 seconds of sustained emotion before updating playlist
+        }).then(({ data }) => {
+          setRecommendation(data);
+          // Don't auto-play queue here to avoid jarring user experience
+        }).catch(err => console.error("Rec error", err));
+      }, 3000); 
       
       return () => clearTimeout(timer);
     }
@@ -75,6 +78,19 @@ export const EmotionDetectionPage = () => {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const playEntireQueue = () => {
+    if (recommendation) {
+      setQueue(recommendation.tracks);
+    }
+  };
+
+  const handlePlaySingle = (track: any) => {
+    if (recommendation) {
+      setQueue(recommendation.tracks);
+    }
+    playTrack(track);
   };
 
   const getEmotionColor = (emotion: string) => {
@@ -242,18 +258,28 @@ export const EmotionDetectionPage = () => {
 
           {recommendation && (
             <div className="glass animate-slide-up" style={{ padding: 'var(--space-6)', borderRadius: 'var(--radius-xl)', flex: 1 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2)' }}>
-                <h3 style={{ fontSize: 'var(--font-size-lg)' }}>Recommended Music</h3>
-                {activeTab === 'live' && (
-                  <span style={{ fontSize: 'var(--font-size-xs)', padding: '2px 8px', borderRadius: '12px', background: 'var(--accent-glow)', color: 'var(--accent-secondary)' }}>
-                    Live Auto-Updates
-                  </span>
-                )}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
+                <div>
+                  <h3 style={{ fontSize: 'var(--font-size-lg)' }}>Recommended Music</h3>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)' }}>
+                    Strategy: <span style={{ color: 'var(--accent-secondary)' }}>{recommendation.strategy.replace('_', ' ')}</span>
+                  </p>
+                </div>
+                
+                <button
+                  onClick={playEntireQueue}
+                  style={{
+                    padding: 'var(--space-2) var(--space-4)',
+                    background: 'var(--accent-primary)',
+                    color: 'white',
+                    borderRadius: 'var(--radius-full)',
+                    fontWeight: 600,
+                    boxShadow: 'var(--shadow-glow)'
+                  }}
+                >
+                  Play Therapy Session
+                </button>
               </div>
-              
-              <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)', marginBottom: 'var(--space-4)' }}>
-                Strategy: <span style={{ color: 'var(--accent-secondary)' }}>{recommendation.strategy.replace('_', ' ')}</span>
-              </p>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
                 {recommendation.tracks.map((track) => (
@@ -266,13 +292,16 @@ export const EmotionDetectionPage = () => {
                       <p style={{ fontWeight: 600 }}>{track.track_name}</p>
                       <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)' }}>{track.artist_name} • {track.genre}</p>
                     </div>
-                    <button style={{
-                      padding: 'var(--space-2) var(--space-4)',
-                      background: 'rgba(139, 92, 246, 0.1)',
-                      color: 'var(--accent-primary)',
-                      borderRadius: 'var(--radius-full)',
-                      fontWeight: 600
-                    }}>
+                    <button 
+                      onClick={() => handlePlaySingle(track)}
+                      style={{
+                        padding: 'var(--space-2) var(--space-4)',
+                        background: 'rgba(139, 92, 246, 0.1)',
+                        color: 'var(--accent-primary)',
+                        borderRadius: 'var(--radius-full)',
+                        fontWeight: 600
+                      }}
+                    >
                       Play
                     </button>
                   </div>
