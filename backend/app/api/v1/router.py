@@ -2,7 +2,16 @@
 
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import admin, analytics, auth, emotions, journals, music, therapy, users
+from app.api.v1.endpoints import (
+    admin,
+    analytics,
+    auth,
+    emotions,
+    journals,
+    music,
+    therapy,
+    users,
+)
 
 router = APIRouter(prefix="/api/v1")
 

@@ -5,7 +5,13 @@ import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import ConflictException, UnauthorizedException
-from app.core.security import create_access_token, create_refresh_token, decode_token, hash_password, verify_password
+from app.core.security import (
+    create_access_token,
+    create_refresh_token,
+    decode_token,
+    hash_password,
+    verify_password,
+)
 from app.repositories.user_repository import UserRepository
 from app.schemas.schemas import LoginRequest, RegisterRequest, TokenResponse
 
@@ -20,7 +26,9 @@ class AuthService:
             raise ConflictException("Email already registered")
 
         hashed = hash_password(data.password)
-        user = await self.user_repo.create(email=data.email, password_hash=hashed, full_name=data.full_name)
+        user = await self.user_repo.create(
+            email=data.email, password_hash=hashed, full_name=data.full_name
+        )
 
         tokens = self._create_tokens(str(user.id))
         return {
@@ -60,4 +68,9 @@ class AuthService:
     def _create_tokens(self, user_id: str) -> dict:
         access = create_access_token(data={"sub": user_id})
         refresh = create_refresh_token(data={"sub": user_id})
-        return {"access_token": access, "refresh_token": refresh, "token_type": "bearer", "expires_in": 1800}
+        return {
+            "access_token": access,
+            "refresh_token": refresh,
+            "token_type": "bearer",
+            "expires_in": 1800,
+        }

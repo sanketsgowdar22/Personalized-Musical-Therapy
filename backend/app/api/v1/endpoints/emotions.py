@@ -1,7 +1,6 @@
 """Emotion detection API endpoints."""
 
 import uuid
-from datetime import datetime
 
 from fastapi import APIRouter, Depends, File, Query, UploadFile
 from sqlalchemy import select
@@ -21,15 +20,23 @@ async def detect_face_emotion(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Detect emotion from a facial image upload."""
-    # In a full implementation, this calls the ML inference service
-    # For now, create a placeholder detection record
+    """Detect emotion from a facial image upload using ML."""
+    from app.services.ml_service import EmotionDetectionService
+
+    # Read image bytes
+    image_bytes = await image.read()
+
+    # Predict emotion using ML service
+    ml_service = EmotionDetectionService()
+    prediction = ml_service.predict_emotion(image_bytes)
+
+    # Save detection to database
     detection = EmotionDetection(
         user_id=current_user.id,
         modality=EmotionModality.face,
-        primary_emotion="neutral",
-        confidence=0.0,
-        all_emotions={"neutral": 1.0},
+        primary_emotion=prediction["primary_emotion"],
+        confidence=prediction["confidence"],
+        all_emotions=prediction["all_emotions"],
         source_type=SourceType.upload,
     )
     db.add(detection)
@@ -92,7 +99,11 @@ async def get_emotion_history(
     query = select(EmotionDetection).where(EmotionDetection.user_id == current_user.id)
     if modality:
         query = query.where(EmotionDetection.modality == modality)
-    query = query.order_by(EmotionDetection.created_at.desc()).offset((page - 1) * per_page).limit(per_page)
+    query = (
+        query.order_by(EmotionDetection.created_at.desc())
+        .offset((page - 1) * per_page)
+        .limit(per_page)
+    )
     result = await db.execute(query)
     return list(result.scalars().all())
 
@@ -106,7 +117,8 @@ async def get_emotion_detection(
     """Get a specific emotion detection by ID."""
     result = await db.execute(
         select(EmotionDetection).where(
-            EmotionDetection.id == detection_id, EmotionDetection.user_id == current_user.id
+            EmotionDetection.id == detection_id,
+            EmotionDetection.user_id == current_user.id,
         )
     )
     detection = result.scalar_one_or_none()

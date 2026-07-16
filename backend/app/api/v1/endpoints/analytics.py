@@ -42,7 +42,9 @@ async def get_emotion_summary(
         for r in rows
     ]
 
-    return AnalyticsSummaryResponse(total_detections=total, period_days=days, emotions=emotions)
+    return AnalyticsSummaryResponse(
+        total_detections=total, period_days=days, emotions=emotions
+    )
 
 
 @router.get("/sessions/stats")
@@ -52,12 +54,16 @@ async def get_session_stats(
 ):
     """Get therapy session statistics."""
     result = await db.execute(
-        select(func.count(TherapySession.id)).where(TherapySession.user_id == current_user.id)
+        select(func.count(TherapySession.id)).where(
+            TherapySession.user_id == current_user.id
+        )
     )
     total_sessions = result.scalar() or 0
 
     result = await db.execute(
-        select(func.sum(TherapySession.message_count)).where(TherapySession.user_id == current_user.id)
+        select(func.sum(TherapySession.message_count)).where(
+            TherapySession.user_id == current_user.id
+        )
     )
     total_messages = result.scalar() or 0
 
