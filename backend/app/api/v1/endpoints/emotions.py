@@ -49,28 +49,25 @@ async def detect_face_emotion(
 async def ws_detect_face_emotion(websocket: WebSocket):
     """Real-time emotion detection via WebSocket."""
     from app.services.ml_service import EmotionDetectionService
+
     await websocket.accept()
     ml_service = EmotionDetectionService()
-    
+
     try:
         while True:
             # Receive image bytes from client
             image_bytes = await websocket.receive_bytes()
-            
+
             try:
                 # Predict emotion
                 prediction = ml_service.predict_emotion(image_bytes)
-                
+
                 # Send result back to client
-                await websocket.send_json({
-                    "status": "success",
-                    "prediction": prediction
-                })
+                await websocket.send_json(
+                    {"status": "success", "prediction": prediction}
+                )
             except Exception as e:
-                await websocket.send_json({
-                    "status": "error",
-                    "message": str(e)
-                })
+                await websocket.send_json({"status": "error", "message": str(e)})
     except Exception:
         # Client disconnected
         pass
