@@ -7,9 +7,9 @@ export const Sidebar = () => {
 
   const links = [
     { to: '/', label: 'Dashboard', icon: '🏠' },
-    { to: '/therapy', label: 'AI Therapy', icon: '💬' },
-    { to: '/journal', label: 'Journal', icon: '📓' },
-    { to: '/music', label: 'Music', icon: '🎵' },
+    { to: '/therapy', label: 'Face AI', icon: '📸' },
+    { to: '/voice', label: 'Voice AI', icon: '🎤' },
+    { to: '/journal', label: 'Journal AI', icon: '📓' },
     { to: '/analytics', label: 'Analytics', icon: '📊' },
   ];
 

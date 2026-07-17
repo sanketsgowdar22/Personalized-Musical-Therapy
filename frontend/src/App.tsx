@@ -3,8 +3,10 @@ import { useAuthStore } from './store/authStore';
 import { AppLayout } from './components/layout/AppLayout';
 import { AuthPage } from './pages/AuthPage';
 import { DashboardPage } from './pages/DashboardPage';
-
 import { EmotionDetectionPage } from './pages/EmotionDetectionPage';
+import { JournalPage } from './pages/JournalPage';
+import { VoiceDetectionPage } from './pages/VoiceDetectionPage';
+import { AnalyticsPage } from './pages/AnalyticsPage';
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -29,9 +31,9 @@ function App() {
               <Routes>
                 <Route path="/" element={<DashboardPage />} />
                 <Route path="/therapy" element={<EmotionDetectionPage />} />
-                <Route path="/journal" element={<div>Journal Flow coming soon...</div>} />
-                <Route path="/music" element={<div>Music Recommender coming soon...</div>} />
-                <Route path="/analytics" element={<div>Analytics coming soon...</div>} />
+                <Route path="/journal" element={<JournalPage />} />
+                <Route path="/voice" element={<VoiceDetectionPage />} />
+                <Route path="/analytics" element={<AnalyticsPage />} />
               </Routes>
             </ProtectedRoute>
           }
