@@ -1,10 +1,9 @@
-"""AI Musical Therapy Platform — FastAPI Application Entry Point."""
-
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+"""AI Musical Therapy Platform - FastAPI Application Entry Point."""
 
 from app.api.v1.router import router as v1_router
 from app.core.config import get_settings
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 settings = get_settings()
 
@@ -17,16 +16,16 @@ app = FastAPI(
     openapi_url="/api/openapi.json",
 )
 
-# ── Middleware ────────────────────────────────────────────────────────────────
+# -- Middleware ----------------------------------------------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ── Routes ───────────────────────────────────────────────────────────────────
+# -- Routes -------------------------------------------------------------------
 app.include_router(v1_router)
 
 
