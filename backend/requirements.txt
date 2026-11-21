@@ -13,3 +13,14 @@ email-validator>=2.1.0
 pytest>=8.1.1
 pytest-asyncio>=0.23.6
 pytest-cov>=5.0.0
+
+# ML Dependencies
+deepface>=0.0.86
+transformers>=4.39.0
+torch>=2.2.0
+Pillow>=10.2.0
+opencv-python-headless>=4.9.0
+tf-keras>=2.15.0
+# ML Dependencies — NVIDIA Nemotron NIM API
+requests>=2.31.0
+spotipy>=2.23.0

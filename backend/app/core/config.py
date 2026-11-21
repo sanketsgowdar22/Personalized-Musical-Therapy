@@ -17,9 +17,7 @@ class Settings(BaseSettings):
     API_PREFIX: str = "/api/v1"
 
     # Database
-    DATABASE_URL: str = (
-        "postgresql+asyncpg://postgres:postgres@localhost:5432/ai_musical_therapy"
-    )
+    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/ai_musical_therapy"
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
@@ -41,11 +39,18 @@ class Settings(BaseSettings):
     SPOTIFY_CLIENT_SECRET: str = ""
     SPOTIFY_REDIRECT_URI: str = "http://localhost:8000/api/v1/auth/spotify/callback"
 
+    # NVIDIA NIM (Nemotron emotion detection)
+    NVIDIA_API_KEY: str = ""
+    NVIDIA_MODEL: str = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning"
+    NVIDIA_API_URL: str = "https://integrate.api.nvidia.com/v1/chat/completions"
+
     # OpenAI
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-4"
 
     class Config:
+        """Pydantic settings configuration."""
+
         env_file = ".env"
         case_sensitive = True
 
