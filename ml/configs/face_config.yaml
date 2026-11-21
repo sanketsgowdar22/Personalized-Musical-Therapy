@@ -1,0 +1,32 @@
+model:
+  name: "resnet50_face_emotion"
+  pretrained: true
+  num_classes: 7
+  unfreeze_layers_from: 40
+  input_size: 224
+
+training:
+  batch_size: 32
+  learning_rate: 1e-4
+  epochs: 50
+  early_stopping_patience: 5
+  seed: 42
+  device: "cuda"
+
+data:
+  dataset_name: "FER-2013"
+  train_path: "../../datasets/processed/face/train"
+  val_path: "../../datasets/processed/face/val"
+  test_path: "../../datasets/processed/face/test"
+  classes:
+    - "angry"
+    - "disgust"
+    - "fear"
+    - "happy"
+    - "sad"
+    - "surprise"
+    - "neutral"
+
+mlflow:
+  tracking_uri: "http://localhost:5000"
+  experiment_name: "face-emotion-detection"
