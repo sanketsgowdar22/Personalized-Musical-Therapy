@@ -126,8 +126,8 @@ class RecommendationService:
         """Initialise the Spotify client from environment variables."""
         self.sp: spotipy.Spotify | None = None
 
-        client_id = os.getenv("SPOTIPY_CLIENT_ID") or os.getenv("SPOTIFY_CLIENT_ID", "")
-        client_secret = os.getenv("SPOTIPY_CLIENT_SECRET") or os.getenv("SPOTIFY_CLIENT_SECRET", "")
+        client_id = os.getenv("SPOTIFY_CLIENT_ID", "")
+        client_secret = os.getenv("SPOTIFY_CLIENT_SECRET", "")
 
         if spotipy and client_id and client_secret:
             try:
