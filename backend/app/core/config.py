@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     # Spotify
     SPOTIFY_CLIENT_ID: str = ""
     SPOTIFY_CLIENT_SECRET: str = ""
-    SPOTIFY_REDIRECT_URI: str = "http://localhost:8000/api/v1/auth/spotify/callback"
+    SPOTIFY_REDIRECT_URI: str = "http://127.0.0.1:8000/api/v1/auth/spotify/callback"
 
     # NVIDIA NIM (Nemotron emotion detection)
     NVIDIA_API_KEY: str = ""
