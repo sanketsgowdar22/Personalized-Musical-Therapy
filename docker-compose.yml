@@ -64,6 +64,11 @@ services:
       - APP_ENV=development
       - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@db:5432/${DB_NAME:-ai_musical_therapy}
       - REDIS_URL=redis://redis:6379/0
+      - NVIDIA_API_KEY=${NVIDIA_API_KEY:-}
+      - NVIDIA_MODEL=${NVIDIA_MODEL:-nvidia/nemotron-3-nano-omni-30b-a3b-reasoning}
+      - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID:-}
+      - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET:-}
+      - SPOTIFY_REDIRECT_URI=${SPOTIFY_REDIRECT_URI:-http://127.0.0.1:8000/api/v1/auth/spotify/callback}
     ports:
       - "${APP_PORT:-8000}:8000"
     volumes:

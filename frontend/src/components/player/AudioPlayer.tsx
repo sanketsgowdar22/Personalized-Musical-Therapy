@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { usePlayerStore } from '../../store/playerStore';
+import { Play, Pause, SkipForward, SkipBack, Volume2, Music, Volume1, VolumeX } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export const AudioPlayer = () => {
   const { currentTrack, isPlaying, volume, togglePlayPause, playNext, playPrevious, setVolume } = usePlayerStore();
   const audioRef = useRef<HTMLAudioElement>(null);
-  
+
   const [progress, setProgress] = useState(0);
 
   // Sync volume
@@ -50,100 +52,126 @@ export const AudioPlayer = () => {
   if (!currentTrack) return null;
 
   return (
-    <div 
-      className="glass"
+    <motion.div
+      initial={{ y: 100 }}
+      animate={{ y: 0 }}
+      transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+      className="glass-panel"
       style={{
         position: 'fixed',
         bottom: '0',
-        left: '280px', // Offset for sidebar (assuming sidebar is 280px or adjust dynamically)
+        left: 'var(--sidebar-width)',
         right: '0',
-        height: '90px',
-        borderTop: '1px solid var(--border)',
+        height: '100px',
         borderBottom: 'none',
         borderRadius: 'var(--radius-xl) var(--radius-xl) 0 0',
-        padding: '0 var(--space-6)',
+        padding: '0 2rem',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         zIndex: 50,
-        boxShadow: '0 -4px 30px rgba(0, 0, 0, 0.1)'
       }}
     >
       {/* Track Info */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)', width: '30%' }}>
-        <div style={{
-          width: '56px', height: '56px', borderRadius: 'var(--radius-md)',
-          background: 'var(--bg-secondary)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          overflow: 'hidden'
-        }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '30%' }}>
+        <motion.div
+          animate={{ scale: isPlaying ? 1.05 : 1, rotate: isPlaying ? [0, 2, -2, 0] : 0 }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+          style={{
+            width: '64px', height: '64px', borderRadius: 'var(--radius-md)',
+            background: 'var(--bg-secondary)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            overflow: 'hidden',
+            boxShadow: isPlaying ? 'var(--shadow-glow)' : 'none',
+            border: '1px solid var(--border)'
+          }}
+        >
           {currentTrack.album_image_url ? (
             <img src={currentTrack.album_image_url} alt="Album" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           ) : (
-            <span style={{ fontSize: '1.5rem' }}>🎵</span>
+            <Music size={24} color="var(--text-muted)" />
           )}
-        </div>
+        </motion.div>
         <div>
-          <h4 style={{ fontWeight: 600, fontSize: 'var(--font-size-md)', margin: 0 }}>{currentTrack.track_name}</h4>
-          <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)', margin: 0 }}>{currentTrack.artist_name}</p>
+          <h4 style={{ fontWeight: 600, fontSize: '1rem', margin: '0 0 0.25rem 0', color: 'var(--text-primary)' }}>{currentTrack.track_name}</h4>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', margin: 0 }}>{currentTrack.artist_name}</p>
         </div>
       </div>
 
       {/* Controls */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '40%' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-6)', marginBottom: 'var(--space-2)' }}>
-          <button onClick={playPrevious} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
-            ⏮️
-          </button>
-          
-          <button 
-            onClick={togglePlayPause} 
-            style={{ 
-              width: '40px', height: '40px', borderRadius: '50%',
-              background: 'white', color: 'black', border: 'none',
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '0.75rem' }}>
+          <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={playPrevious} style={{ color: 'var(--text-secondary)' }}>
+            <SkipBack size={24} />
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={togglePlayPause}
+            style={{
+              width: '48px', height: '48px', borderRadius: '50%',
+              background: 'white', color: 'black',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer'
+              boxShadow: '0 4px 15px rgba(255,255,255,0.2)'
             }}
           >
-            {isPlaying ? '⏸️' : '▶️'}
-          </button>
-          
-          <button onClick={playNext} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
-            ⏭️
-          </button>
+            {isPlaying ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" style={{ marginLeft: '4px' }} />}
+          </motion.button>
+
+          <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={playNext} style={{ color: 'var(--text-secondary)' }}>
+            <SkipForward size={24} />
+          </motion.button>
         </div>
-        
+
         {/* Progress Bar */}
-        <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-          <input 
-            type="range" 
-            min="0" max="100" value={progress} 
+        <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', minWidth: '40px', textAlign: 'right' }}>
+            {audioRef.current ? formatTime(audioRef.current.currentTime) : '0:00'}
+          </span>
+          <input
+            type="range"
+            min="0" max="100" value={progress || 0}
             onChange={seek}
-            style={{ width: '100%', height: '4px', accentColor: 'var(--accent-primary)' }}
+            style={{
+              width: '100%', height: '4px',
+              accentColor: 'var(--accent-primary)',
+              cursor: 'pointer'
+            }}
           />
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', minWidth: '40px' }}>
+            {audioRef.current ? formatTime(audioRef.current.duration) : '0:00'}
+          </span>
         </div>
       </div>
 
       {/* Volume */}
-      <div style={{ width: '30%', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 'var(--space-2)' }}>
-        <span style={{ color: 'var(--text-secondary)' }}>🔊</span>
-        <input 
-          type="range" 
-          min="0" max="1" step="0.01" 
+      <div style={{ width: '30%', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem' }}>
+        {volume === 0 ? <VolumeX size={20} color="var(--text-secondary)" /> : volume < 0.5 ? <Volume1 size={20} color="var(--text-secondary)" /> : <Volume2 size={20} color="var(--text-secondary)" />}
+        <input
+          type="range"
+          min="0" max="1" step="0.01"
           value={volume}
           onChange={(e) => setVolume(parseFloat(e.target.value))}
-          style={{ width: '100px', height: '4px', accentColor: 'var(--accent-primary)' }}
+          style={{ width: '100px', height: '4px', accentColor: 'var(--text-primary)', cursor: 'pointer' }}
         />
       </div>
 
-      {/* Hidden Audio Element */}
-      {/* In Phase 09, we might use a mock stream URL if preview_url is null */}
-      <audio 
+      <audio
         ref={audioRef}
-        src={currentTrack.preview_url || "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"} 
+        src={currentTrack.preview_url || "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"}
         onTimeUpdate={handleTimeUpdate}
         onEnded={handleEnded}
+        onLoadedMetadata={handleTimeUpdate}
       />
-    </div>
+    </motion.div>
   );
 };
+
+// Helper for MM:SS
+function formatTime(seconds: number) {
+  if (!seconds || isNaN(seconds)) return '0:00';
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${s < 10 ? '0' : ''}${s}`;
+}
