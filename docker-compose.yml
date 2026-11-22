@@ -62,7 +62,7 @@ services:
     restart: unless-stopped
     environment:
       - APP_ENV=development
-      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@db:5432/${DB_NAME:-ai_musical_therapy}
+      - DATABASE_URL=postgresql+asyncpg://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@db:5432/${DB_NAME:-ai_musical_therapy}
       - REDIS_URL=redis://redis:6379/0
       - NVIDIA_API_KEY=${NVIDIA_API_KEY:-}
       - NVIDIA_MODEL=${NVIDIA_MODEL:-nvidia/nemotron-3-nano-omni-30b-a3b-reasoning}
