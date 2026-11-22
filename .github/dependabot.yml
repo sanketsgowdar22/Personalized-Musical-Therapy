@@ -1,5 +1,7 @@
 # ==============================================================================
-# Dependabot Configuration — AI Musical Therapy Platform
+# Dependabot Configuration - AI Musical Therapy Platform
+# ==============================================================================
+# Groups keep the PR count manageable: 4 grouped PRs instead of 30 individual ones.
 # ==============================================================================
 
 version: 2
@@ -10,14 +12,19 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 5
     labels:
       - "dependencies"
       - "frontend"
     commit-message:
       prefix: "build(deps):"
-    reviewers:
-      - "ai-musical-therapy/frontend-team"
+    groups:
+      frontend-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   # Backend (pip)
   - package-ecosystem: "pip"
@@ -25,14 +32,19 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 5
     labels:
       - "dependencies"
       - "backend"
     commit-message:
       prefix: "build(deps):"
-    reviewers:
-      - "ai-musical-therapy/backend-team"
+    groups:
+      backend-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   # ML (pip)
   - package-ecosystem: "pip"
@@ -46,31 +58,48 @@ updates:
       - "ml"
     commit-message:
       prefix: "build(deps):"
-    reviewers:
-      - "ai-musical-therapy/ml-team"
+    groups:
+      ml-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
     labels:
       - "dependencies"
       - "ci"
     commit-message:
       prefix: "ci(deps):"
-    reviewers:
-      - "ai-musical-therapy/devops-team"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   # Docker
   - package-ecosystem: "docker"
     directory: "/docker"
     schedule:
       interval: "weekly"
+      day: "monday"
     labels:
       - "dependencies"
       - "docker"
     commit-message:
       prefix: "build(docker):"
-    reviewers:
-      - "ai-musical-therapy/devops-team"
+    groups:
+      docker-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"

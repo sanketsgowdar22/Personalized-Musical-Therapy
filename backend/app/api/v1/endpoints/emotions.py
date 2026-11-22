@@ -2,16 +2,18 @@
 
 import uuid
 
-from fastapi import APIRouter, Depends, File, Query, UploadFile, WebSocket
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.models.models import EmotionDetection, EmotionModality, SourceType, User
 from app.schemas.schemas import EmotionDetectionResponse
+from app.services.ml_service import EmotionDetectionService
+from fastapi import APIRouter, Depends, File, Query, UploadFile, WebSocket
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/emotions", tags=["Emotions"])
+
+_ml_service = EmotionDetectionService()
 
 
 @router.post("/detect/face", response_model=EmotionDetectionResponse)
@@ -20,17 +22,10 @@ async def detect_face_emotion(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Detect emotion from a facial image upload using ML."""
-    from app.services.ml_service import EmotionDetectionService
-
-    # Read image bytes
+    """Detect emotion from a facial image upload using NVIDIA Nemotron."""
     image_bytes = await image.read()
+    prediction = _ml_service.predict_emotion(image_bytes)
 
-    # Predict emotion using ML service
-    ml_service = EmotionDetectionService()
-    prediction = ml_service.predict_emotion(image_bytes)
-
-    # Save detection to database
     detection = EmotionDetection(
         user_id=current_user.id,
         modality=EmotionModality.face,
@@ -48,29 +43,18 @@ async def detect_face_emotion(
 @router.websocket("/ws/detect/face")
 async def ws_detect_face_emotion(websocket: WebSocket):
     """Real-time emotion detection via WebSocket."""
-    from app.services.ml_service import EmotionDetectionService
-
     await websocket.accept()
-    ml_service = EmotionDetectionService()
 
     try:
         while True:
-            # Receive image bytes from client
             image_bytes = await websocket.receive_bytes()
-
             try:
-                # Predict emotion
-                prediction = ml_service.predict_emotion(image_bytes)
-
-                # Send result back to client
-                await websocket.send_json(
-                    {"status": "success", "prediction": prediction}
-                )
-            except Exception as e:
-                await websocket.send_json({"status": "error", "message": str(e)})
+                prediction = _ml_service.predict_emotion(image_bytes)
+                await websocket.send_json({"status": "success", "prediction": prediction})
+            except Exception as exc:
+                await websocket.send_json({"status": "error", "message": str(exc)})
     except Exception:
-        # Client disconnected
-        pass
+        pass  # Client disconnected
 
 
 @router.post("/detect/text", response_model=EmotionDetectionResponse)
@@ -79,13 +63,16 @@ async def detect_text_emotion(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Detect emotion from text input."""
+    """Detect emotion from free-form text input."""
+    text_content = text.get("text", "")
+    prediction = _ml_service.predict_text_emotion(text_content)
+
     detection = EmotionDetection(
         user_id=current_user.id,
         modality=EmotionModality.text,
-        primary_emotion="neutral",
-        confidence=0.0,
-        all_emotions={"neutral": 1.0},
+        primary_emotion=prediction["primary_emotion"],
+        confidence=prediction["confidence"],
+        all_emotions=prediction["all_emotions"],
         source_type=SourceType.journal,
     )
     db.add(detection)
@@ -100,13 +87,16 @@ async def detect_voice_emotion(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Detect emotion from voice recording."""
+    """Detect emotion from a voice recording."""
+    audio_bytes = await audio.read()
+    prediction = _ml_service.predict_voice_emotion(audio_bytes)
+
     detection = EmotionDetection(
         user_id=current_user.id,
         modality=EmotionModality.voice,
-        primary_emotion="neutral",
-        confidence=0.0,
-        all_emotions={"neutral": 1.0},
+        primary_emotion=prediction["primary_emotion"],
+        confidence=prediction["confidence"],
+        all_emotions=prediction["all_emotions"],
         source_type=SourceType.recording,
     )
     db.add(detection)
@@ -123,15 +113,11 @@ async def get_emotion_history(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Get paginated emotion detection history."""
+    """Get paginated emotion detection history for the current user."""
     query = select(EmotionDetection).where(EmotionDetection.user_id == current_user.id)
     if modality:
         query = query.where(EmotionDetection.modality == modality)
-    query = (
-        query.order_by(EmotionDetection.created_at.desc())
-        .offset((page - 1) * per_page)
-        .limit(per_page)
-    )
+    query = query.order_by(EmotionDetection.created_at.desc()).offset((page - 1) * per_page).limit(per_page)
     result = await db.execute(query)
     return list(result.scalars().all())
 
@@ -142,7 +128,7 @@ async def get_emotion_detection(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Get a specific emotion detection by ID."""
+    """Get a specific emotion detection record by ID."""
     result = await db.execute(
         select(EmotionDetection).where(
             EmotionDetection.id == detection_id,

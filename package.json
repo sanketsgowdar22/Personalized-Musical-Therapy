@@ -1,0 +1,30 @@
+{
+  "name": "ai-musical-therapy",
+  "version": "1.0.0",
+  "description": "<p align=\"center\">   <img src=\"assets/logo.png\" alt=\"AI Musical Therapy Platform\" width=\"200\" /> </p>",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "start:frontend": "npm run dev --prefix frontend",
+    "start:backend": "cd backend && uvicorn main:app --port 8000 --reload",
+    "dev": "concurrently -n \"API,UI\" -c \"bgBlue.bold,bgMagenta.bold\" \"npm run start:backend\" \"npm run start:frontend\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sanketsgowdar22/Personalized-Musical-Therapy.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/sanketsgowdar22/Personalized-Musical-Therapy/issues"
+  },
+  "homepage": "https://github.com/sanketsgowdar22/Personalized-Musical-Therapy#readme",
+  "devDependencies": {
+    "concurrently": "^10.0.3"
+  }
+}
